@@ -53,7 +53,7 @@ const SideNavigation = ({ menu }) => {
                   menu === item.slug.replaceAll("/admin/", "")
                     ? "border-accent bg-accent !opacity-100 text-white"
                     : ""
-                } p-2 mb-2 rounded-md border border-transparent opacity-60 hover:opacity-100`}
+                } p-2 mb-2 rounded-md border border-transparent opacity-90 hover:opacity-100`}
                 key={key}
               >
                 <NavLink

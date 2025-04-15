@@ -1,20 +1,20 @@
-import React from "react";
-import IconServerError from "../partials/IconServerError";
-import Pills from "../partials/Pills";
-import { Archive, ArchiveRestore, FilePenLine, Trash2 } from "lucide-react";
-import LoadMore from "../partials/LoadMore";
-import IconNoData from "../partials/IconNoData";
-import TableLoader from "../partials/TableLoader";
-import SpinnerTable from "../partials/spinners/SpinnerTable";
-import { StoreContext } from "@/components/store/storeContext";
 import {
   setIsAdd,
   setIsConfirm,
   setIsDelete,
 } from "@/components/store/storeAction";
-import ModalDelete from "../partials/modals/ModalDelete";
-import ModalConfirm from "../partials/modals/ModalConfirm";
+import { StoreContext } from "@/components/store/storeContext";
+import { Archive, ArchiveRestore, FilePenLine, Trash2 } from "lucide-react";
+import React from "react";
 import { menus } from "../menu-data";
+import IconNoData from "../partials/IconNoData";
+import IconServerError from "../partials/IconServerError";
+import LoadMore from "../partials/LoadMore";
+import Pills from "../partials/Pills";
+import TableLoader from "../partials/TableLoader";
+import ModalConfirm from "../partials/modals/ModalConfirm";
+import ModalDelete from "../partials/modals/ModalDelete";
+import SpinnerTable from "../partials/spinners/SpinnerTable";
 
 const FoodsTable = ({ setItemEdit }) => {
   const { store, dispatch } = React.useContext(StoreContext);
@@ -36,7 +36,7 @@ const FoodsTable = ({ setItemEdit }) => {
   };
   return (
     <>
-      <div className="p-4 bg-secondary rounded-md mt-10 border border-line relative">
+      <div className="p-4 bg-secondary rounded-md mt-5 border border-line relative">
         {/* <SpinnerTable /> */}
         <div className="table-wrapper custom-scroll">
           {/* <TableLoader count={20} cols={4} /> */}

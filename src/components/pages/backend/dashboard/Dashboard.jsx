@@ -1,18 +1,18 @@
+import {
+  CartesianGrid,
+  Legend,
+  Line,
+  LineChart,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from "recharts";
 import Footer from "../partials/Footer";
 import Header from "../partials/Header";
 import SideNavigation from "../partials/SideNavigation";
-import DashboardCard from "./DashboardCard";
 import DashboardAccordion from "./DashboardAccordion";
-import {
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  Legend,
-  ResponsiveContainer,
-} from "recharts";
+import DashboardCard from "./DashboardCard";
 
 import { menus } from "../menu-data";
 
@@ -63,7 +63,7 @@ const Dashboard = () => {
                     </ResponsiveContainer>
                   </div>
                 </div>
-                <div className="sidebar overflow-auto custom-scroll h-[calc(100vh-200px)]">
+                <div className="sidebar overflow-auto custom-scroll h-[calc(100vh-200px)] scroll-gutter">
                   <DashboardAccordion
                     title="Chicken Joy"
                     filterby="Chickenjoy"
