@@ -22,14 +22,13 @@ if (isset($_SERVER['HTTP_AUTHORIZATION'])) {
         // check data
         checkPayload($data);
         // get task id from query string
-        $category->category_search = checkIndex($data, "search");
+        $category->category_search = checkIndex($data, "searchValue");
         $query = checkSearch($category);
         http_response_code(200);
         getQueriedData($query);
     }
     // return 404 error if endpoint not available
-     checkEndpoint();
-
+    checkEndpoint();
 }
 
 http_response_code(200);

@@ -7,16 +7,18 @@ import Searchbar from "../partials/Searchbar";
 import CategoryTable from "./CategoryTable";
 import { StoreContext } from "@/components/store/storeContext";
 import { setIsAdd } from "@/components/store/storeAction";
-import ModalAddAdversitement from "./ModalAddCategory";
+import ModalAddCategory from "./ModalAddCategory";
 import ToastSuccess from "../partials/ToastSuccess";
 import ModalError from "../partials/modals/ModalError";
 import ModalValidation from "../partials/modals/ModalValidation";
 
 const Category = () => {
   const { dispatch, store } = React.useContext(StoreContext);
+  const [itemEdit, setItemEdit] = React.useState(null);
 
   const handleAdd = () => {
     dispatch(setIsAdd(true));
+    setItemEdit(null);
   };
   return (
     <>
@@ -27,21 +29,20 @@ const Category = () => {
             <Header title="Category" subtitle="Manage Kiosk Category" />
             <div className="p-8">
               <div className="flex justify-between items-center">
-                <Searchbar />
                 <button className="btn btn-add" onClick={handleAdd}>
                   <Plus size={16} /> Add New
                 </button>
               </div>
-              <CategoryTable />
+              <CategoryTable setItemEdit={setItemEdit} />
             </div>
             <Footer />
           </main>
         </div>
       </section>
+      {store.isAdd && <ModalAddCategory itemEdit={itemEdit} />}
       {store.validate && <ModalValidation />}
       {store.error && <ModalError />}
       {store.success && <ToastSuccess />}
-      {store.isAdd && <ModalAddAdversitement />}
     </>
   );
 };

@@ -16,10 +16,7 @@ import ModalAddFoods from "./ModalAddFoods";
 const Foods = () => {
   const { dispatch, store } = React.useContext(StoreContext);
   const [itemEdit, setItemEdit] = React.useState(null);
-  const handleAdd = () => {
-    dispatch(setIsAdd(true));
-    setItemEdit(null);
-  };
+
   return (
     <>
       <section className="layout-main ">
@@ -28,22 +25,16 @@ const Foods = () => {
           <main>
             <Header title="Foods" subtitle="Manage List of Foods" />
             <div className="p-8">
-              <div className="flex justify-between items-center">
-                <Searchbar />
-                <button className="btn btn-add" onClick={handleAdd}>
-                  <Plus size={16} /> Add New
-                </button>
-              </div>
               <FoodsTable setItemEdit={setItemEdit} />
             </div>
             <Footer />
           </main>
         </div>
       </section>
+      {store.isAdd && <ModalAddFoods itemEdit={itemEdit} />}
       {store.validate && <ModalValidation />}
       {store.error && <ModalError />}
       {store.success && <ToastSuccess />}
-      {store.isAdd && <ModalAddFoods itemEdit={itemEdit} />}
     </>
   );
 };

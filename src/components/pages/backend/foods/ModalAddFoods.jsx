@@ -3,7 +3,12 @@ import ModalWrapper from "../partials/modals/ModalWrapper";
 import { ImagePlusIcon, X } from "lucide-react";
 import SpinnerButton from "../partials/spinners/SpinnerButton";
 import { StoreContext } from "@/components/store/storeContext";
-import { setIsAdd } from "@/components/store/storeAction";
+import {
+  setIsAdd,
+  setMessage,
+  setSuccess,
+  setValidate,
+} from "@/components/store/storeAction";
 import { Form, Formik } from "formik";
 import {
   InputPhotoUpload,
@@ -12,27 +17,77 @@ import {
 } from "@/components/helpers/FormInputs";
 import * as Yup from "Yup";
 import useUploadPhoto from "@/components/custom-hook/useUploadPhoto";
-import { imgPath } from "@/components/helpers/functions-general";
+import {
+  devBaseImgUrl,
+  imgPath,
+  ver,
+} from "@/components/helpers/functions-general";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { queryData } from "@/components/helpers/queryData";
+import useQueryData from "@/components/custom-hook/useQueryData";
 
 const ModalAddFoods = ({ itemEdit }) => {
   const { dispatch } = React.useContext(StoreContext);
-  const { uploadPhoto, handleChangePhoto, photo } = useUploadPhoto("");
+  const { uploadPhoto, handleChangePhoto, photo } = useUploadPhoto(
+    `/${ver}/upload/photo`
+  );
+  const [withPhoto, setWithPhoto] = React.useState(false);
 
   const handleClose = () => {
     dispatch(setIsAdd(false));
   };
 
-  console.log(itemEdit);
+  const {
+    isLoading: loadingCategory,
+    isFetching: fetchingCategory,
+    error: errorCategory,
+    data: category,
+  } = useQueryData(
+    `/${ver}/food/read-all-active`, // endpoint
+    "get", // method
+    "read-all-active" // key
+  );
 
-  const initVal = {
-    menu_title: itemEdit ? itemEdit.menu_title : "",
-    menu_price: itemEdit ? itemEdit.menu_price : "",
-    menu_category: itemEdit ? itemEdit.menu_category : "",
-  };
+  const queryClient = useQueryClient();
+  const mutation = useMutation({
+    mutationFn: (values) =>
+      queryData(
+        itemEdit ? `/${ver}/food/${itemEdit.food_aid}` : `/${ver}/food`,
+        itemEdit ? "put" : "post",
+        values
+      ),
+    onSuccess: (data) => {
+      // Invalidate and refetch
+
+      queryClient.invalidateQueries({
+        queryKey: ["food"],
+      });
+
+      // show error box
+      if (!data.success) {
+        dispatch(setValidate(true));
+        dispatch(setMessage(data.error));
+      } else {
+        dispatch(setSuccess(true));
+        dispatch(setMessage(`Record Successfully updated.`));
+        dispatch(setIsAdd(false));
+      }
+    },
+  });
+
+  const initVal = itemEdit
+    ? { ...itemEdit, food_title_old: itemEdit.food_title }
+    : {
+        food_title: "",
+        food_price: "",
+        food_category_id: "",
+        food_title_old: "",
+      };
+
   const yupSchema = Yup.object({
-    menu_title: Yup.string().required("Required"),
-    menu_price: Yup.string().required("Required"),
-    menu_category: Yup.string().required("Required"),
+    food_title: Yup.string().required("Require"),
+    food_price: Yup.string().required("Require"),
+    food_category_id: Yup.string().required("Require"),
   });
 
   return (
@@ -50,47 +105,74 @@ const ModalAddFoods = ({ itemEdit }) => {
             initialValues={initVal}
             validationSchema={yupSchema}
             onSubmit={async (values) => {
-              console.log(values);
+              mutation.mutate({
+                ...values,
+                food_image:
+                  (itemEdit && itemEdit.food_image === "") || photo
+                    ? photo === null
+                      ? itemEdit.food_image
+                      : photo.name
+                    : values.food_image,
+              });
+              uploadPhoto();
             }}
           >
             {(props) => {
               return (
                 <Form>
-                  <div className="modal-form h-full h-[calc(100vh-56px)] grid grid-rows-[1fr_auto]">
+                  <div className="modal-form h-[calc(100vh-56px)] grid grid-rows-[1fr_auto]">
                     <div className="form-wrapper p-4 max-h-[85vh] h-full overflow-y-auto custom-scroll">
-                      <div className="input-wrap relative  group input-photo-wrap h-[150px] mb-7 ">
-                        <label htmlFor="">Photo</label>
-                        {itemEdit === null ? (
-                          <div className="w-full border border-line rounded-md flex justify-center items-center flex-col h-full">
-                            <ImagePlusIcon
-                              size={50}
-                              strokeWidth={1}
-                              className="opacity-20 group-hover:opacity-50 transition-opacity"
-                            />
-                            <small className="opacity-20 group-hover:opacity-50 transition-opacity">
-                              Upload Photo
-                            </small>
-                          </div>
-                        ) : (
+                      <div
+                        className={`relative mt-5 mb-6 border border-gray-300 rounded-md hover:border-primary hover:border-dashed ${
+                          withPhoto && "border-primary border-dashed"
+                        }`}
+                        onDragOver={() => setWithPhoto(true)}
+                        onDragLeave={() => setWithPhoto(false)}
+                      >
+                        {photo || (itemEdit && itemEdit.food_image !== "") ? (
                           <img
                             src={
-                              itemEdit === null
+                              photo
                                 ? URL.createObjectURL(photo) // preview
-                                : imgPath + "/" + itemEdit?.menu_image // check db
+                                : itemEdit.food_image // check db
+                                ? devBaseImgUrl + "/" + itemEdit.food_image
+                                : null
                             }
-                            alt="employee photo"
-                            className={`group-hover:opacity-30 duration-200 relative object-cover h-full w-full  m-auto `}
+                            alt="car photo"
+                            className="rounded-tr-md rounded-tl-md h-[200px] max-h-[200px] w-full object-cover object-center m-auto"
                           />
+                        ) : (
+                          <span className="min-h-20 flex items-center justify-center">
+                            <span className="text-accent mr-1">
+                              Drag & Drop
+                            </span>{" "}
+                            photo here or{" "}
+                            <span className="text-accent ml-1">Browse</span>
+                          </span>
                         )}
+
+                        {(photo !== null ||
+                          (itemEdit && itemEdit.food_image !== "")) && (
+                          <span className="min-h-10 flex items-center justify-center">
+                            <span className="text-accent mr-1">
+                              Drag & Drop
+                            </span>{" "}
+                            photo here or{" "}
+                            <span className="text-accent ml-1">Browse</span>
+                          </span>
+                        )}
+
+                        {/* <FaUpload className="opacity-100 duration-200 group-hover:opacity-100 fill-dark/70 absolute top-0 right-0 bottom-0 left-0 min-w-[1.2rem] min-h-[1.2rem] max-w-[1.2rem] max-h-[1.2rem] m-auto cursor-pointer" /> */}
                         <InputPhotoUpload
+                          label="Car Photo"
                           name="photo"
                           type="file"
-                          id="photo"
+                          id="myFile"
                           accept="image/*"
                           title="Upload photo"
                           onChange={(e) => handleChangePhoto(e)}
                           onDrop={(e) => handleChangePhoto(e)}
-                          className={`opacity-0 absolute top-0 right-0 bottom-0 left-0 rounded-full  m-auto cursor-pointer w-full h-full`}
+                          className="opacity-0 absolute right-0 bottom-0 left-0 m-auto cursor-pointer h-full "
                         />
                       </div>
 
@@ -98,7 +180,7 @@ const ModalAddFoods = ({ itemEdit }) => {
                         <InputText
                           label="Title"
                           type="text"
-                          name="menu_title"
+                          name="food_title"
                         />
                       </div>
 
@@ -106,29 +188,59 @@ const ModalAddFoods = ({ itemEdit }) => {
                         <InputText
                           label="Price"
                           type="text"
-                          name="menu_price"
+                          name="food_price"
                         />
                       </div>
 
                       <div className="input-wrap">
-                        <InputSelect label="Category" name="menu_category">
-                          <option value="" hidden>
-                            Select Category
-                          </option>
-                          <option value="Value Meal">Value Meal</option>
-                          <option value="Chickenjoy">Chicken Joy</option>
-                          <option value="Burger">Burger</option>
-                          <option value="Spaghetti">Spaghetti</option>
-                          <option value="Burger Steak">Burger Steak</option>
-                          <option value="Palabok">Palabok</option>
-                          <option value="Sides">Sides</option>
-                          <option value="Desserts">Desserts</option>
+                        <InputSelect label="Category" name="food_category_id">
+                          {loadingCategory ? (
+                            <option value="" hidden>
+                              Loading...
+                            </option>
+                          ) : errorCategory ? (
+                            <option value="" disabled>
+                              Error
+                            </option>
+                          ) : (
+                            <optgroup label="Select unit">
+                              <option value="" hidden></option>
+                              {category?.data.length > 0 ? (
+                                <>
+                                  {category?.data.map((cItem, key) => {
+                                    return (
+                                      <option
+                                        value={cItem.category_aid}
+                                        key={key}
+                                      >
+                                        {cItem.category_title}
+                                      </option>
+                                    );
+                                  })}
+                                </>
+                              ) : (
+                                <option value="" disabled>
+                                  No data
+                                </option>
+                              )}
+                            </optgroup>
+                          )}
                         </InputSelect>
                       </div>
                     </div>
                     <div className="form-action flex p-4 justify-end gap-3">
-                      <button className="btn btn-add" type="submit">
-                        <SpinnerButton /> Save
+                      <button
+                        className="btn btn-add"
+                        type="submit"
+                        disabled={!props.dirty}
+                      >
+                        {mutation.isPending ? (
+                          <SpinnerButton />
+                        ) : itemEdit ? (
+                          "Save"
+                        ) : (
+                          "Add"
+                        )}
                       </button>
                       <button
                         className="btn btn-cancel"

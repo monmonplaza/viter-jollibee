@@ -5,21 +5,22 @@ import SideNav from "./SideNav";
 import MenuList from "./MenuList";
 import ModalCart from "./ModalCart";
 import ToastSuccess from "./ToastSuccess";
+import { Link } from "react-router-dom";
 
 const Order = () => {
-  const [category, setCategory] = React.useState("Value Meal");
+  const [category, setCategory] = React.useState(18);
   const [cartData, setCartData] = React.useState([]);
   const [showCart, setShowCart] = React.useState(false);
   const [isSuccess, setIsSuccess] = React.useState(false);
 
   const getTotal = cartData.reduce((acc, item) => {
-    return acc + item.menu_price * item.quantity;
+    return acc + item.food_price * item.quantity;
   }, 0);
 
   return (
     <>
       <SliderBanner />
-      <div className="grid grid-rows-[auto,_1fr,_auto] min-h-[calc(100vh-200px)]">
+      <div className="grid grid-rows-[auto,_1fr,_auto] min-h-[calc(100vh-300px)]">
         <MenuTitle category={category} />
         <section className="grid grid-cols-[150px,_1fr] bg-myred px-3">
           <aside className="m-1 bg-white rounded-md h-[60.5vh] overflow-y-scroll custom-scroll">
@@ -35,13 +36,16 @@ const Order = () => {
           </main>
         </section>
         <div className="flex p-1 px-3 justify-between items-center bg-myred text-white">
-          <button className="px-4 py-2 border bg-white text-myred border-white rounded-md">
+          <Link
+            to="/"
+            className="px-4 py-2 border bg-white text-myred border-white rounded-md"
+          >
             Cancel
-          </button>
+          </Link>
 
           <div className="px-4 py-2 border border-white rounded-md w-[300px] text-center">
             <small className="text-xs">Total Order</small>
-            <h4 className="mb-0">P {getTotal.toFixed(2)}</h4>
+            <h4 className="mb-0">{getTotal.toFixed(2)}</h4>
           </div>
 
           <button

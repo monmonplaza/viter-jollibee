@@ -10,7 +10,7 @@ if (array_key_exists("foodid", $_GET)) {
 checkPayload($data);
 
 $food->food_title = checkIndex($data, "food_title");
-$food->food_image = checkIndex($data, "food_image");
+$food->food_image = $data["food_image"];
 $food->food_price = checkIndex($data, "food_price");
 $food->food_category_id = checkIndex($data, "food_category_id");
 $food->food_is_active = 1;

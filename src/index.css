@@ -79,7 +79,7 @@
 
 @layer components {
   .btn {
-    @apply p-1.5 border py-2 border-transparent flex gap-1 rounded-md transition-all items-center bg-primary text-sm;
+    @apply p-1.5 border py-2 border-transparent flex gap-1 rounded-md transition-all items-center bg-primary text-sm w-full max-w-[160px] justify-center;
   }
 
   .btn:disabled {

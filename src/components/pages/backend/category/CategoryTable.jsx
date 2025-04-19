@@ -1,43 +1,49 @@
-import {
-  setIsAdd,
-  setIsConfirm,
-  setIsDelete,
-} from "@/components/store/storeAction";
+import useQueryData from "@/components/custom-hook/useQueryData";
+import useTableActions from "@/components/custom-hook/useTableActions";
+import { ver } from "@/components/helpers/functions-general";
 import { StoreContext } from "@/components/store/storeContext";
 import { Archive, ArchiveRestore, FilePenLine, Trash2 } from "lucide-react";
 import React from "react";
 import IconNoData from "../partials/IconNoData";
 import IconServerError from "../partials/IconServerError";
-import LoadMore from "../partials/LoadMore";
+import LoaderTable from "../partials/LoaderTable";
 import Pills from "../partials/Pills";
-import TableLoader from "../partials/TableLoader";
 import ModalConfirm from "../partials/modals/ModalConfirm";
 import ModalDelete from "../partials/modals/ModalDelete";
 import SpinnerTable from "../partials/spinners/SpinnerTable";
 
-const CategoryTable = () => {
+const CategoryTable = ({ setItemEdit }) => {
   const { store, dispatch } = React.useContext(StoreContext);
   let counter = 1;
-  const handleEdit = () => {
-    dispatch(setIsAdd(true));
-  };
+  const {
+    handleRemove,
+    handleEdit,
+    handleArchive,
+    handleRestore,
+    aid,
+    data,
+    isActive,
+  } = useTableActions({
+    setItemEdit,
+  });
 
-  const handleDelete = () => {
-    dispatch(setIsDelete(true));
-  };
-  const handleRestore = () => {
-    dispatch(setIsConfirm(true));
-  };
+  const {
+    isLoading,
+    isFetching,
+    error,
+    data: result,
+  } = useQueryData(
+    `/${ver}/category`, // endpoint
+    "get", // method
+    "category" // key
+  );
 
-  const handleArchive = () => {
-    dispatch(setIsConfirm(true));
-  };
   return (
     <>
       <div className="p-4 bg-secondary rounded-md mt-5 border border-line relative">
-        {/* <SpinnerTable /> */}
+        {!isLoading && isFetching && <SpinnerTable />}
+
         <div className="table-wrapper custom-scroll">
-          {/* <TableLoader count={20} cols={4} /> */}
           <table>
             <thead>
               <tr>
@@ -48,75 +54,114 @@ const CategoryTable = () => {
               </tr>
             </thead>
             <tbody>
-              {/* <tr>
-                <td colSpan={50}>
-                  <IconNoData />
-                </td>
-              </tr>
-
-              <tr>
-                <td colSpan={50}>
-                  <IconServerError />
-                </td>
-              </tr> */}
-              {Array.from(Array(6).keys()).map((i) => (
-                <tr key={i}>
-                  <td>{counter++}.</td>
-                  <td>
-                    <Pills />
-                  </td>
-                  <td>Chicken Joy</td>
-
-                  <td>
-                    <ul className="table-action ">
-                      {true ? (
-                        <>
-                          <li>
-                            <button
-                              className="tooltip"
-                              data-tooltip="Edit"
-                              onClick={() => handleEdit()}
-                            >
-                              <FilePenLine />
-                            </button>
-                          </li>
-                          <li>
-                            <button className="tooltip" data-tooltip="Archive">
-                              <Archive onClick={() => handleArchive()} />
-                            </button>
-                          </li>
-                        </>
-                      ) : (
-                        <>
-                          <li>
-                            <button className="tooltip" data-tooltip="Restore">
-                              <ArchiveRestore onClick={() => handleRestore()} />
-                            </button>
-                          </li>
-                          <li>
-                            <button
-                              className="tooltip"
-                              data-tooltip="Delete"
-                              onClick={handleDelete}
-                            >
-                              <Trash2 />
-                            </button>
-                          </li>
-                        </>
-                      )}
-                    </ul>
+              {((isLoading && !isFetching) || result?.data.length === 0) && (
+                <tr>
+                  <td colSpan="100%">
+                    {isLoading ? (
+                      <LoaderTable count={30} cols={6} />
+                    ) : (
+                      <IconNoData />
+                    )}
                   </td>
                 </tr>
-              ))}
+              )}
+
+              {error && (
+                <tr>
+                  <td colSpan="100%" className="p-10">
+                    <IconServerError />
+                  </td>
+                </tr>
+              )}
+              {result?.data.map((item, key) => {
+                return (
+                  <tr key={key}>
+                    <td>{counter++}.</td>
+                    <td>
+                      <Pills isActive={item.category_is_active} />
+                    </td>
+                    <td>{item.category_title}</td>
+
+                    <td>
+                      <ul className="table-action ">
+                        {item.category_is_active === 1 ? (
+                          <>
+                            <li>
+                              <button
+                                className="tooltip"
+                                data-tooltip="Edit"
+                                onClick={() =>
+                                  handleEdit(item.category_aid, item)
+                                }
+                              >
+                                <FilePenLine />
+                              </button>
+                            </li>
+                            <li>
+                              <button
+                                className="tooltip"
+                                data-tooltip="Archive"
+                              >
+                                <Archive
+                                  onClick={() =>
+                                    handleArchive(item.category_aid, item)
+                                  }
+                                />
+                              </button>
+                            </li>
+                          </>
+                        ) : (
+                          <>
+                            <li>
+                              <button
+                                className="tooltip"
+                                data-tooltip="Restore"
+                              >
+                                <ArchiveRestore
+                                  onClick={() =>
+                                    handleRestore(item.category_aid, item)
+                                  }
+                                />
+                              </button>
+                            </li>
+                            <li>
+                              <button
+                                className="tooltip"
+                                data-tooltip="Delete"
+                                onClick={() =>
+                                  handleRemove(item.category_aid, item)
+                                }
+                              >
+                                <Trash2 />
+                              </button>
+                            </li>
+                          </>
+                        )}
+                      </ul>
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
-
-          <LoadMore />
         </div>
       </div>
-      {store.isDelete && <ModalDelete />}
-      {store.isConfirm && <ModalConfirm />}
-      {store.isView && <ModalViewMovie movieInfo={movieInfo} />}
+      {store.isDelete && (
+        <ModalDelete
+          mysqlApiDelete={`/${ver}/category/${aid}`}
+          queryKey="category"
+          item={data.category_title}
+          filename={data.category_thumbnail}
+        />
+      )}
+      {store.isConfirm && (
+        <ModalConfirm
+          mysqlApiArchive={`/${ver}/category/active/${aid}`}
+          queryKey="category"
+          item={data.category_title}
+          active={isActive}
+        />
+      )}
     </>
   );
 };

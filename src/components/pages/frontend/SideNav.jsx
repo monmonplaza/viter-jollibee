@@ -1,45 +1,21 @@
-import { imgPath } from "@/components/helpers/functions-general";
+import useQueryData from "@/components/custom-hook/useQueryData";
+import { imgPath, ver } from "@/components/helpers/functions-general";
 import React from "react";
+import SpinnerTable from "../backend/partials/spinners/SpinnerTable";
+import IconServerError from "../backend/partials/IconServerError";
+import IconNoData from "../backend/partials/IconNoData";
 
 const SideNav = ({ setCategory }) => {
-  const menus = [
-    {
-      img: "nav-value-meal.webp",
-      title: "Value Meal",
-    },
-    {
-      img: "nav-chickenjoy.webp",
-      title: "Chickenjoy",
-    },
-    {
-      img: "nav-burger.webp",
-      title: "Burger",
-    },
-    {
-      img: "nav-spaghetti.webp",
-      title: "Spaghetti",
-    },
-
-    {
-      img: "nav-burger-steak.webp",
-      title: "Burger Steak",
-    },
-
-    {
-      img: "nav-palabok.webp",
-      title: "Palabok",
-    },
-
-    {
-      img: "nav-sides.webp",
-      title: "Sides",
-    },
-
-    {
-      img: "nav-desserts.webp",
-      title: "Desserts",
-    },
-  ];
+  const {
+    isLoading,
+    isFetching,
+    error,
+    data: result,
+  } = useQueryData(
+    `/${ver}/category`, // endpoint
+    "get", // method
+    "category" // key
+  );
 
   const handleGetCategory = (category) => {
     setCategory(category);
@@ -47,16 +23,27 @@ const SideNav = ({ setCategory }) => {
   return (
     <>
       <h5 className="mb-0 text-center pt-2 text-sm">Menu</h5>
-      <ul>
-        {menus.map((item, key) => (
-          <li className="mb-3" key={key}>
-            <button onClick={() => handleGetCategory(item.title)}>
-              <img src={`${imgPath}/${item.img}`} />
-              <small className="text-xs">{item.title}</small>
-            </button>
-          </li>
-        ))}
-      </ul>
+
+      <div className="relative">
+        {isLoading ? (
+          <SpinnerTable />
+        ) : error ? (
+          <IconServerError />
+        ) : result?.data.length === 0 ? (
+          <IconNoData />
+        ) : (
+          <ul className="space-y-10">
+            {result?.data.map((item, key) => (
+              <li className="mb-3" key={key}>
+                <button onClick={() => handleGetCategory(item.category_aid)}>
+                  <img src={`${imgPath}/${item.category_thumbnail}`} />
+                  <small className="text-xs">{item.category_title}</small>
+                </button>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
     </>
   );
 };

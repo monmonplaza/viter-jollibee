@@ -6,14 +6,11 @@ import { Link } from "react-router-dom";
 const Welcome = () => {
   return (
     <>
-      <main className="w-full h-screen relative">
-        <h1 className="absolute top-5 left-1/2 -translate-x-1/2 whitespace-nowrap text-white">
-          Order and Pay Here
-        </h1>
+      <main className="w-full h-screen relative bg-red-900">
         <img
-          src={`${imgPath}/welcome-banner.jpg`}
+          src={`${imgPath}/banner.webp`}
           alt=""
-          className="h-full w-full block object-cover"
+          className="h-full w-full block object-cover opacity-90"
         />
 
         <div className="absolute w-full bottom-0 left-0">

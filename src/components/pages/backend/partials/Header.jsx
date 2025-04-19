@@ -41,7 +41,7 @@ const Header = ({ title = "", subtitle = "" }) => {
 
           <div className="flex items-center gap-6">
             <button
-              className="h-[20px] w-[45px] bg-primary rounded-2xl border border-line px-[2px] hover:border-accent transition-all duration-200"
+              className="h-[20px] w-[40px] bg-primary rounded-2xl border border-line px-[2px] hover:border-accent transition-all duration-200"
               onClick={handleTheme}
             >
               <span

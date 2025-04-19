@@ -7,6 +7,7 @@ RewriteCond %{REQUEST_FILENAME} !-f
 
 Header set Access-Control-Allow-Origin *
  
+RewriteRule ^upload/photo$ core/upload-photo.php [L]
 
 #ADVERTISEMENT
 RewriteRule ^advertisement$ controllers/advertisement/advertisement.php [L]
@@ -28,5 +29,6 @@ RewriteRule ^food$ controllers/food/food.php [L]
 RewriteRule ^food/([0-9]+)$ controllers/food/food.php?foodid=$1 [L]
 RewriteRule ^food/active/([0-9]+)$ controllers/food/active.php?foodid=$1 [L]
 RewriteRule ^food/page/([0-9]+)$ controllers/food/page.php?start=$1 [L]
+RewriteRule ^food/read-all-active$ controllers/food/read-all-active.php? [L]
 RewriteRule ^food/search$ controllers/food/search.php? [L]
 

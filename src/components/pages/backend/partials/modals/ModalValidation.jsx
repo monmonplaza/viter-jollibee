@@ -5,7 +5,7 @@ import { StoreContext } from "@/components/store/storeContext";
 import { setValidate } from "@/components/store/storeAction";
 
 const ModalValidation = () => {
-  const { dispatch } = React.useContext(StoreContext);
+  const { store, dispatch } = React.useContext(StoreContext);
   const handleClose = () => dispatch(setValidate(false));
   return (
     <>
@@ -14,9 +14,9 @@ const ModalValidation = () => {
           <div className="modal-body p-2 py-4 text-center">
             <Info className="text-info mx-auto mb-4" size={40} />
             <h5>Validation issue</h5>
-            <p className="text-center my-5">The title already exist</p>
+            <p className="text-center my-5">{store.message}</p>
             <button
-              className="btn btn-info w-full flex justify-center"
+              className="btn btn-info w-full flex justify-center mx-auto"
               onClick={handleClose}
             >
               Okay

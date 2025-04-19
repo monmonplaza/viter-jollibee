@@ -14,28 +14,40 @@ import TableLoader from "../partials/TableLoader";
 import ModalConfirm from "../partials/modals/ModalConfirm";
 import ModalDelete from "../partials/modals/ModalDelete";
 import SpinnerTable from "../partials/spinners/SpinnerTable";
+import useTableActions from "@/components/custom-hook/useTableActions";
+import useQueryData from "@/components/custom-hook/useQueryData";
+import { ver } from "@/components/helpers/functions-general";
+import LoaderTable from "../partials/LoaderTable";
 
-const AdvertisementTable = () => {
+const AdvertisementTable = ({ setItemEdit }) => {
   const { store, dispatch } = React.useContext(StoreContext);
   let counter = 1;
-  const handleEdit = () => {
-    dispatch(setIsAdd(true));
-  };
+  const {
+    handleRemove,
+    handleEdit,
+    handleArchive,
+    handleRestore,
+    aid,
+    data,
+    isActive,
+  } = useTableActions({
+    setItemEdit,
+  });
 
-  const handleDelete = () => {
-    dispatch(setIsDelete(true));
-  };
-  const handleRestore = () => {
-    dispatch(setIsConfirm(true));
-  };
-
-  const handleArchive = () => {
-    dispatch(setIsConfirm(true));
-  };
+  const {
+    isLoading,
+    isFetching,
+    error,
+    data: result,
+  } = useQueryData(
+    `/${ver}/advertisement`, // endpoint
+    "get", // method
+    "advertisement" // key
+  );
   return (
     <>
       <div className="p-4 bg-secondary rounded-md mt-5 border border-line relative">
-        {/* <SpinnerTable /> */}
+        {!isLoading && isFetching && <SpinnerTable />}
         <div className="table-wrapper custom-scroll">
           {/* <TableLoader count={20} cols={4} /> */}
           <table>
@@ -48,75 +60,115 @@ const AdvertisementTable = () => {
               </tr>
             </thead>
             <tbody>
-              {/* <tr>
-                <td colSpan={50}>
-                  <IconNoData />
-                </td>
-              </tr>
-
-              <tr>
-                <td colSpan={50}>
-                  <IconServerError />
-                </td>
-              </tr> */}
-              {Array.from(Array(6).keys()).map((i) => (
-                <tr key={i}>
-                  <td>{counter++}.</td>
-                  <td>
-                    <Pills />
-                  </td>
-                  <td>Advertisement 1</td>
-
-                  <td>
-                    <ul className="table-action ">
-                      {true ? (
-                        <>
-                          <li>
-                            <button
-                              className="tooltip"
-                              data-tooltip="Edit"
-                              onClick={() => handleEdit()}
-                            >
-                              <FilePenLine />
-                            </button>
-                          </li>
-                          <li>
-                            <button className="tooltip" data-tooltip="Archive">
-                              <Archive onClick={() => handleArchive()} />
-                            </button>
-                          </li>
-                        </>
-                      ) : (
-                        <>
-                          <li>
-                            <button className="tooltip" data-tooltip="Restore">
-                              <ArchiveRestore onClick={() => handleRestore()} />
-                            </button>
-                          </li>
-                          <li>
-                            <button
-                              className="tooltip"
-                              data-tooltip="Delete"
-                              onClick={handleDelete}
-                            >
-                              <Trash2 />
-                            </button>
-                          </li>
-                        </>
-                      )}
-                    </ul>
+              {((isLoading && !isFetching) || result?.data.length === 0) && (
+                <tr>
+                  <td colSpan="100%">
+                    {isLoading ? (
+                      <LoaderTable count={30} cols={6} />
+                    ) : (
+                      <IconNoData />
+                    )}
                   </td>
                 </tr>
-              ))}
+              )}
+
+              {error && (
+                <tr>
+                  <td colSpan="100%" className="p-10">
+                    <IconServerError />
+                  </td>
+                </tr>
+              )}
+              {result?.data.map((item, key) => {
+                return (
+                  <tr key={key}>
+                    <td>{counter++}.</td>
+                    <td>
+                      <Pills isActive={item.advertisement_is_active} />
+                    </td>
+                    <td>{item.advertisement_title}</td>
+
+                    <td>
+                      <ul className="table-action ">
+                        {item.advertisement_is_active === 1 ? (
+                          <>
+                            <li>
+                              <button
+                                className="tooltip"
+                                data-tooltip="Edit"
+                                onClick={() =>
+                                  handleEdit(item.advertisement_aid, item)
+                                }
+                              >
+                                <FilePenLine />
+                              </button>
+                            </li>
+                            <li>
+                              <button
+                                className="tooltip"
+                                data-tooltip="Archive"
+                              >
+                                <Archive
+                                  onClick={() =>
+                                    handleArchive(item.advertisement_aid, item)
+                                  }
+                                />
+                              </button>
+                            </li>
+                          </>
+                        ) : (
+                          <>
+                            <li>
+                              <button
+                                className="tooltip"
+                                data-tooltip="Restore"
+                              >
+                                <ArchiveRestore
+                                  onClick={() =>
+                                    handleRestore(item.advertisement_aid, item)
+                                  }
+                                />
+                              </button>
+                            </li>
+                            <li>
+                              <button
+                                className="tooltip"
+                                data-tooltip="Delete"
+                                onClick={() =>
+                                  handleRemove(item.advertisement_aid, item)
+                                }
+                              >
+                                <Trash2 />
+                              </button>
+                            </li>
+                          </>
+                        )}
+                      </ul>
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
-
-          <LoadMore />
         </div>
       </div>
-      {store.isDelete && <ModalDelete />}
-      {store.isConfirm && <ModalConfirm />}
-      {store.isView && <ModalViewMovie movieInfo={movieInfo} />}
+
+      {store.isDelete && (
+        <ModalDelete
+          mysqlApiDelete={`/${ver}/advertisement/${aid}`}
+          queryKey="advertisement"
+          item={data.advertisement_title}
+          filename={data.advertisement_image}
+        />
+      )}
+      {store.isConfirm && (
+        <ModalConfirm
+          mysqlApiArchive={`/${ver}/advertisement/active/${aid}`}
+          queryKey="advertisement"
+          item={data.advertisement_title}
+          active={isActive}
+        />
+      )}
     </>
   );
 };

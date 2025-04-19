@@ -64,8 +64,12 @@ export const StoreReducer = (state, action) => {
         ...state,
         isDelete: action.payload,
       };
+    case "IS_RESET":
+      return {
+        ...state,
+        isReset: action.payload,
+      };
 
-   
     case "IS_VIEW":
       return {
         ...state,
@@ -78,16 +82,16 @@ export const StoreReducer = (state, action) => {
         isSearch: action.payload,
       };
 
-    
-
     case "IS_ANIMATING":
       return {
         ...state,
         isAnimating: action.payload,
       };
-
-
-   
+    case "IS_SUSPEND":
+      return {
+        ...state,
+        isSuspend: action.payload,
+      };
 
     default:
       return state;

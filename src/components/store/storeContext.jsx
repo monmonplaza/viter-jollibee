@@ -11,6 +11,8 @@ const initVal = {
   isArchive: false,
   isRestore: false,
   isDelete: false,
+  isReset: false,
+  isSuspend: false,
   isAdd: false,
   isView: false,
   isAnimating: true,

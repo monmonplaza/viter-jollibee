@@ -3,25 +3,69 @@ import ModalWrapper from "../partials/modals/ModalWrapper";
 import { ImagePlusIcon, X } from "lucide-react";
 import SpinnerButton from "../partials/spinners/SpinnerButton";
 import { StoreContext } from "@/components/store/storeContext";
-import { setIsAdd } from "@/components/store/storeAction";
+import {
+  setIsAdd,
+  setMessage,
+  setSuccess,
+  setValidate,
+} from "@/components/store/storeAction";
 import { Form, Formik } from "formik";
 import { InputPhotoUpload, InputText } from "@/components/helpers/FormInputs";
 import * as Yup from "Yup";
 import useUploadPhoto from "@/components/custom-hook/useUploadPhoto";
+import { devBaseImgUrl, ver } from "@/components/helpers/functions-general";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { queryData } from "@/components/helpers/queryData";
 
-const ModalAddAdversitement = () => {
+const ModalAddAdversitement = ({ itemEdit }) => {
   const { dispatch } = React.useContext(StoreContext);
-  const { uploadPhoto, handleChangePhoto, photo } = useUploadPhoto("");
-
+  const { uploadPhoto, handleChangePhoto, photo } = useUploadPhoto(
+    `/${ver}/upload/photo`
+  );
+  const [withPhoto, setWithPhoto] = React.useState(false);
   const handleClose = () => {
     dispatch(setIsAdd(false));
   };
 
-  const initVal = {
-    advertisement_title: "",
-  };
+  const queryClient = useQueryClient();
+  const mutation = useMutation({
+    mutationFn: (values) =>
+      queryData(
+        itemEdit
+          ? `/${ver}/advertisement/${itemEdit.advertisement_aid}`
+          : `/${ver}/advertisement`,
+        itemEdit ? "put" : "post",
+        values
+      ),
+    onSuccess: (data) => {
+      // Invalidate and refetch
+
+      queryClient.invalidateQueries({
+        queryKey: ["advertisement"],
+      });
+
+      // show error box
+      if (!data.success) {
+        dispatch(setValidate(true));
+        dispatch(setMessage(data.error));
+      } else {
+        dispatch(setSuccess(true));
+        dispatch(setMessage(`Record Successfully updated.`));
+        dispatch(setIsAdd(false));
+      }
+    },
+  });
+
+  const initVal = itemEdit
+    ? { ...itemEdit, advertisement_title_old: itemEdit.advertisement_title }
+    : {
+        advertisement_title: "",
+        advertisement_image: "",
+        advertisement_title_old: "",
+      };
+
   const yupSchema = Yup.object({
-    advertisement_title: Yup.string().required("Required"),
+    advertisement_title: Yup.string().required("Require"),
   });
 
   return (
@@ -39,7 +83,17 @@ const ModalAddAdversitement = () => {
             initialValues={initVal}
             validationSchema={yupSchema}
             onSubmit={async (values) => {
-              console.log(values);
+              mutation.mutate({
+                ...values,
+                advertisement_image:
+                  (itemEdit && itemEdit.advertisement_image === "") || photo
+                    ? photo === null
+                      ? itemEdit.advertisement_image
+                      : photo.name
+                    : values.advertisement_image,
+              });
+
+              uploadPhoto();
             }}
           >
             {(props) => {
@@ -55,45 +109,77 @@ const ModalAddAdversitement = () => {
                         />
                       </div>
 
-                      <div className="input-wrap relative  group input-photo-wrap h-[150px] ">
-                        <label htmlFor="">Photo</label>
-                        {photo === null ? (
-                          <div className="w-full border border-line rounded-md flex justify-center items-center flex-col h-full">
-                            <ImagePlusIcon
-                              size={50}
-                              strokeWidth={1}
-                              className="opacity-20 group-hover:opacity-50 transition-opacity"
-                            />
-                            <small className="opacity-20 group-hover:opacity-50 transition-opacity">
-                              Upload Photo
-                            </small>
-                          </div>
-                        ) : (
+                      <div
+                        className={`relative mt-5 mb-6 border border-gray-300 rounded-md hover:border-primary hover:border-dashed ${
+                          withPhoto && "border-primary border-dashed"
+                        }`}
+                        onDragOver={() => setWithPhoto(true)}
+                        onDragLeave={() => setWithPhoto(false)}
+                      >
+                        {photo ||
+                        (itemEdit && itemEdit.advertisement_image !== "") ? (
                           <img
                             src={
-                              true
+                              photo
                                 ? URL.createObjectURL(photo) // preview
-                                : imgPath + "/" + itemEdit?.movies_image // check db
+                                : itemEdit.advertisement_image // check db
+                                ? devBaseImgUrl +
+                                  "/" +
+                                  itemEdit.advertisement_image
+                                : null
                             }
-                            alt="employee photo"
-                            className={`group-hover:opacity-30 duration-200 relative object-cover h-full w-full  m-auto `}
+                            alt="car photo"
+                            className="rounded-tr-md rounded-tl-md h-[200px] max-h-[200px] w-full object-cover object-center m-auto"
                           />
+                        ) : (
+                          <span className="min-h-20 flex items-center justify-center">
+                            <span className="text-accent mr-1">
+                              Drag & Drop
+                            </span>{" "}
+                            photo here or{" "}
+                            <span className="text-accent ml-1">Browse</span>
+                          </span>
                         )}
+
+                        {(photo !== null ||
+                          (itemEdit &&
+                            itemEdit.advertisement_image !== "")) && (
+                          <span className="min-h-10 flex items-center justify-center">
+                            <span className="text-accent mr-1">
+                              Drag & Drop
+                            </span>{" "}
+                            photo here or{" "}
+                            <span className="text-accent ml-1">Browse</span>
+                          </span>
+                        )}
+
+                        {/* <FaUpload className="opacity-100 duration-200 group-hover:opacity-100 fill-dark/70 absolute top-0 right-0 bottom-0 left-0 min-w-[1.2rem] min-h-[1.2rem] max-w-[1.2rem] max-h-[1.2rem] m-auto cursor-pointer" /> */}
                         <InputPhotoUpload
+                          label="Car Photo"
                           name="photo"
                           type="file"
-                          id="photo"
+                          id="myFile"
                           accept="image/*"
                           title="Upload photo"
                           onChange={(e) => handleChangePhoto(e)}
                           onDrop={(e) => handleChangePhoto(e)}
-                          className={`opacity-0 absolute top-0 right-0 bottom-0 left-0 rounded-full  m-auto cursor-pointer w-full h-full`}
+                          className="opacity-0 absolute right-0 bottom-0 left-0 m-auto cursor-pointer h-full "
                         />
                       </div>
                     </div>
                     <div className="form-action flex p-4 justify-end gap-3">
-                      <button className="btn btn-add" type="submit">
-                        <SpinnerButton /> Save
+                      <button
+                        className="btn btn-add"
+                        type="submit"
+                        disabled={!props.dirty}
+                      >
+                        {mutation.isPending ? (
+                          <SpinnerButton />
+                        ) : itemEdit ? (
+                          "Save"
+                        ) : (
+                          "Add"
+                        )}
                       </button>
                       <button
                         className="btn btn-cancel"

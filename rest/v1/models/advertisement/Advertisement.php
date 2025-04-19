@@ -10,7 +10,6 @@ class Advertisement
     public $advertisement_created;
     public $advertisement_datetime;
 
-    public $product_quantity;
 
     public $advertisement_start;
     public $advertisement_total;
@@ -25,7 +24,6 @@ class Advertisement
     {
         $this->connection = $db;
         $this->tblAdvertisement = "jb_advertisement";
-        
     }
 
     // create
@@ -63,7 +61,7 @@ class Advertisement
     {
         try {
             $sql = "select * ";
-            $sql .= "from {$this->tblAdvertisement} ";         
+            $sql .= "from {$this->tblAdvertisement} ";
             $sql .= "order by advertisement_is_active desc, ";
             $sql .= "advertisement_title asc ";
             $query = $this->connection->query($sql);
@@ -78,7 +76,7 @@ class Advertisement
     {
         try {
             $sql = "select * ";
-            $sql .= "from {$this->tblAdvertisement} ";         
+            $sql .= "from {$this->tblAdvertisement} ";
             $sql .= "order by advertisement_is_active desc, ";
             $sql .= "advertisement_title asc ";
             $sql .= "limit :start, ";
@@ -99,7 +97,7 @@ class Advertisement
     {
         try {
             $sql = "select * ";
-            $sql .= "from {$this->tblAdvertisement} ";         
+            $sql .= "from {$this->tblAdvertisement} ";
             $sql .= "where advertisement_title like :advertisement_title ";
             $sql .= "order by advertisement_is_active desc, ";
             $sql .= "advertisement_title asc ";
@@ -141,6 +139,7 @@ class Advertisement
             $sql .= "where advertisement_aid = :advertisement_aid ";
             $query = $this->connection->prepare($sql);
             $query->execute([
+                "advertisement_title" => $this->advertisement_title,
                 "advertisement_image" => $this->advertisement_image,
                 "advertisement_datetime" => $this->advertisement_datetime,
                 "advertisement_aid" => $this->advertisement_aid,

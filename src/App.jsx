@@ -10,24 +10,29 @@ import Dashboard from "./components/pages/backend/dashboard/Dashboard";
 import Login from "./components/pages/backend/access/Login";
 import SetPassword from "./components/pages/backend/access/SetPassword";
 import ForgotPassword from "./components/pages/backend/access/ForgotPassword";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 const App = () => {
-  return (
-    <StoreProvider>
-      <Router>
-        <Routes>
-          <Route index element={<Welcome />} />
-          <Route path="/order" element={<Order />} />
-          <Route path="/admin/dashboard" element={<Dashboard />} />
-          <Route path="/admin/advertisement" element={<Advertisement />} />
-          <Route path="/admin/foods" element={<Foods />} />
-          <Route path="/admin/category" element={<Category />} />
+  const queryClient = new QueryClient();
 
-          <Route path="/admin/login" element={<Login />} />
-          <Route path="/admin/set-password" element={<SetPassword />} />
-          <Route path="/admin/forgot-password" element={<ForgotPassword />} />
-        </Routes>
-      </Router>
-    </StoreProvider>
+  return (
+    <QueryClientProvider client={queryClient}>
+      <StoreProvider>
+        <Router>
+          <Routes>
+            <Route index element={<Welcome />} />
+            <Route path="/order" element={<Order />} />
+            <Route path="/admin/dashboard" element={<Dashboard />} />
+            <Route path="/admin/advertisement" element={<Advertisement />} />
+            <Route path="/admin/foods" element={<Foods />} />
+            <Route path="/admin/category" element={<Category />} />
+
+            <Route path="/admin/login" element={<Login />} />
+            <Route path="/admin/set-password" element={<SetPassword />} />
+            <Route path="/admin/forgot-password" element={<ForgotPassword />} />
+          </Routes>
+        </Router>
+      </StoreProvider>
+    </QueryClientProvider>
   );
 };
 

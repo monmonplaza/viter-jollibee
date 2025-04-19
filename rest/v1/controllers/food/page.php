@@ -19,7 +19,7 @@ if (isset($_SERVER['HTTP_AUTHORIZATION'])) {
         // get data
         // get task id from query string
         $food->food_start = $_GET['start'];
-        $food->food_total = 5;
+        $food->food_total = 10;
         //check to see if task id in query string is not empty and is number, if not return json error
         checkLimitId($food->food_start, $food->food_total);
 
