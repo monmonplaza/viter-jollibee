@@ -17,12 +17,6 @@ const MenuList = ({ category, cartData, setCartData, setIsSuccess }) => {
     "food" // key
   );
 
-  console.log(category);
-
-  // const menuFilter =
-  //   result?.data.length !== 0 &&
-  //   result?.data.filter((item) => item.food_category_id === category);
-
   const handleAdd = (item) => {
     const exist = cartData.find((data) => data.food_aid === item.food_aid);
     if (exist !== undefined) {
@@ -47,7 +41,10 @@ const MenuList = ({ category, cartData, setCartData, setIsSuccess }) => {
       ) : (
         <div className="grid grid-cols-3 gap-4 p-4">
           {result?.data
-            .filter((item) => item.food_category_id === category)
+            .filter(
+              (item) =>
+                item.food_category_id === category && item.food_is_active === 1
+            )
             .map((item, key) => (
               <button key={key} onClick={() => handleAdd(item)}>
                 <img

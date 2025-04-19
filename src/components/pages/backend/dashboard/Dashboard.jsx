@@ -13,10 +13,21 @@ import Header from "../partials/Header";
 import SideNavigation from "../partials/SideNavigation";
 import DashboardAccordion from "./DashboardAccordion";
 import DashboardCard from "./DashboardCard";
-
-import { menus } from "../menu-data";
+import useQueryData from "@/components/custom-hook/useQueryData";
+import { ver } from "@/components/helpers/functions-general";
 
 const Dashboard = () => {
+  const {
+    isLoading,
+    isFetching,
+    error,
+    data: result,
+  } = useQueryData(
+    `/${ver}/category`, // endpoint
+    "get", // method
+    "category" // key
+  );
+
   return (
     <>
       <section className="layout-main ">
@@ -28,20 +39,16 @@ const Dashboard = () => {
               <div className="grid grid-cols-[1fr_400px] gap-5">
                 <div className="stats">
                   <div className="grid grid-cols-4 gap-5">
-                    <DashboardCard title="Chicken Joy" filterby="Chickenjoy" />
-                    <DashboardCard title="Value Meal" filterby="Value Meal" />
-                    <DashboardCard title="Burger" filterby="Burger" />
-                    <DashboardCard
-                      title="Burger Steak"
-                      filterby="Burger Steak"
-                    />
-                    <DashboardCard title="Spaghetti" filterby="Spaghetti" />
-                    <DashboardCard title="Palabok" filterby="Palabok" />
-                    <DashboardCard title="Sides" filterby="Sides" />
-                    <DashboardCard title="Desserts" filterby="Desserts" />
+                    {!isLoading &&
+                      result?.data.map((item) => (
+                        <DashboardCard
+                          title={item.category_title}
+                          filterby={item.category_title}
+                        />
+                      ))}
                   </div>
 
-                  <div className="chart mt-10">
+                  {/* <div className="chart mt-10">
                     <h3>Menu Prices</h3>
                     <ResponsiveContainer width={"100%"} height={300}>
                       <LineChart data={menus}>
@@ -61,24 +68,16 @@ const Dashboard = () => {
                         />
                       </LineChart>
                     </ResponsiveContainer>
-                  </div>
+                  </div> */}
                 </div>
                 <div className="sidebar overflow-auto custom-scroll h-[calc(100vh-200px)] scroll-gutter">
-                  <DashboardAccordion
-                    title="Chicken Joy"
-                    filterby="Chickenjoy"
-                  />
-                  <DashboardAccordion
-                    title="Value Meal"
-                    filterby="Value Meal"
-                  />
-                  <DashboardAccordion title="Burger" filterby="Burger" />
-                  <DashboardAccordion
-                    title="Burger Steak"
-                    filterby="Burger Steak"
-                  />
-
-                  <DashboardAccordion title="Spaghetti" filterby="Spaghetti" />
+                  {!isLoading &&
+                    result?.data.map((item) => (
+                      <DashboardAccordion
+                        title={item.category_title}
+                        filterby={item.category_title}
+                      />
+                    ))}
                 </div>
               </div>
             </div>
