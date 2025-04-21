@@ -1,14 +1,14 @@
 import React from "react";
-import SliderBanner from "./SliderBanner";
-import MenuTitle from "./MenuTitle";
-import SideNav from "./SideNav";
-import MenuList from "./MenuList";
-import ModalCart from "./ModalCart";
-import ToastSuccess from "./ToastSuccess";
 import { Link } from "react-router-dom";
+import MenuList from "./MenuList";
+import MenuTitle from "./MenuTitle";
+import ModalCart from "./ModalCart";
+import SideNav from "./SideNav";
+import SliderBanner from "./SliderBanner";
+import ToastSuccess from "./ToastSuccess";
 
 const Order = () => {
-  const [category, setCategory] = React.useState(18);
+  const [category, setCategory] = React.useState(16);
   const [cartData, setCartData] = React.useState([]);
   const [showCart, setShowCart] = React.useState(false);
   const [isSuccess, setIsSuccess] = React.useState(false);
@@ -20,13 +20,13 @@ const Order = () => {
   return (
     <>
       <SliderBanner />
-      <div className="grid grid-rows-[auto,_1fr,_auto] min-h-[calc(100vh-300px)]">
+      <div className="grid grid-rows-[auto,_1fr,_auto] min-h-[calc(100vh-380px)]">
         <MenuTitle category={category} />
         <section className="grid grid-cols-[150px,_1fr] bg-myred px-3">
-          <aside className="m-1 bg-white rounded-md h-[60.5vh] overflow-y-scroll custom-scroll">
+          <aside className="m-1 bg-white rounded-md h-[57.3vh] overflow-y-scroll custom-scroll">
             <SideNav setCategory={setCategory} />
           </aside>
-          <main className="m-1 bg-white rounded-md h-[60.5vh] overflow-y-scroll custom-scroll">
+          <main className="m-1 bg-white rounded-md h-[57.3vh] overflow-y-scroll custom-scroll">
             <MenuList
               category={category}
               cartData={cartData}

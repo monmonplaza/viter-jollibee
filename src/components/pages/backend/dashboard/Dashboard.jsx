@@ -1,3 +1,5 @@
+import useQueryData from "@/components/custom-hook/useQueryData";
+import { ver } from "@/components/helpers/functions-general";
 import {
   CartesianGrid,
   Legend,
@@ -13,8 +15,6 @@ import Header from "../partials/Header";
 import SideNavigation from "../partials/SideNavigation";
 import DashboardAccordion from "./DashboardAccordion";
 import DashboardCard from "./DashboardCard";
-import useQueryData from "@/components/custom-hook/useQueryData";
-import { ver } from "@/components/helpers/functions-general";
 
 const Dashboard = () => {
   const {
@@ -40,10 +40,11 @@ const Dashboard = () => {
                 <div className="stats">
                   <div className="grid grid-cols-4 gap-5">
                     {!isLoading &&
-                      result?.data.map((item) => (
+                      result?.data.map((item, key) => (
                         <DashboardCard
                           title={item.category_title}
                           filterby={item.category_title}
+                          key={key}
                         />
                       ))}
                   </div>
@@ -72,10 +73,11 @@ const Dashboard = () => {
                 </div>
                 <div className="sidebar overflow-auto custom-scroll h-[calc(100vh-200px)] scroll-gutter">
                   {!isLoading &&
-                    result?.data.map((item) => (
+                    result?.data.map((item, key) => (
                       <DashboardAccordion
                         title={item.category_title}
                         filterby={item.category_title}
+                        key={key}
                       />
                     ))}
                 </div>
